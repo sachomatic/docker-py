@@ -16,6 +16,6 @@ def log_viewer(ctn):
 
     t = threading.Thread(target=start_ws, daemon=True)
     t.start()
-    components.iframe("http://localhost:3001", height=800)
+    components.iframe("http://100.84.125.60:3001", height=800)
     t.join()
     print("Thread terminated")

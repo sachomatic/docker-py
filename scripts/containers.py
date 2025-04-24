@@ -1,8 +1,7 @@
 import streamlit as st
 from scripts.login import BASE_USER
-import re
 import docker.errors as de
-import docker,streamlit as st,time
+import docker,streamlit as st
 
 @st.dialog(title="Que se passe t-il?",width="large")
 def info():

@@ -24,7 +24,7 @@ def get_local_ip():
     return ip_address
 
 class ViteServer:
-    def __init__(self, port=3000):
+    def __init__(self, port=3001):
         self.port = port
         self.process = None
 
@@ -45,7 +45,7 @@ class ViteServer:
     def stop(self):
         if self.process:
             print("Stopping Vite server")
-            self.process.terminate()
+            self.process.kill()
             self.process.wait()
         else:
             print("Server not running")
