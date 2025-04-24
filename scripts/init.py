@@ -2,7 +2,8 @@ import streamlit as st
 import os, subprocess
 
 #Si docker n'est pas lancé, on le lance
-subprocess.Popen(r'"C:\Program Files\Docker\Docker\Docker Desktop.exe"') if "Docker Desktop.exe" not in os.popen('tasklist').read() else None
+with os.popen('tasklist') as tasklist:
+    subprocess.Popen(r'"C:\Program Files\Docker\Docker\Docker Desktop.exe"') if "Docker Desktop.exe" not in tasklist.read() else None
 
 def init():
     keys = {"pages":None,
