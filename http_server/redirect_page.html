@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+</head>
+<body>
+  <script>
+    const hostname = window.location.hostname;
+    const instances = new Request(`http://${hostname}:8080/get_instances`);
+    console.log(instances.body);
+    //window.location.href = `http://${hostname}:${newPort}`;
+  </script>
+
+  <p>If you are not redirected automatically, please check your connection.</p>
+</body>
+</html>

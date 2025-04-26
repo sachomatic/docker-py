@@ -1,48 +1,62 @@
-import streamlit as st
+import threading
+import os,asyncio
+from websockets.asyncio.server import serve
+from http.server import HTTPServer as BaseHTTPServer, SimpleHTTPRequestHandler
 
-from scripts.init import init
-init() # Initialisation des variables de session
+global INSTANCES
+INSTANCES = 0
 
-from scripts.home import home
-from scripts.containers import ctn_page
-from scripts.login import User,login_page,find_user,deserialize_perms
-from scripts.admin_panel import admin_panel
-from scripts.cookies import Cookies
+def handle_client(instance_number):    
+    import subprocess
+    global INSTANCES
 
-# Gestion des cookies
-conn = Cookies()
-rd = conn.read_cookies() # Lecture des cookies
-if rd != None: # Si la recherche n'est pas vide
-    search = find_user(rd.name,rd.password) # On essaie de se connecter avec le mot de passe
-    if search[0] != False: # Si le statut de la recherche est True
-        st.session_state["user"] = User(search[1][0],search[1][1],deserialize_perms(search[1][2])) # On crée l'utilisateur et on l'enregistre
-    else: # Si la connexion a échouée, on affiche un dialogue. Normalement cela n'arrive jamais, sauf si la base de données est corrompue ou a été supprimée
-        @st.dialog("Erreur de connection automatique")
-        def show_forced_deconnection():
-            """
-            Dialogue d'erreur de connection automatique
-            """
-            st.error("Votre session pointe vers un compte qui n'existe plus, vous allez être déconnecté.")
-            st.image(r"docker-py\img\error_500.gif")
-            if st.button("OK"):
-                conn.clear_cookies()
-                st.rerun()
-        show_forced_deconnection()
-elif rd == None and st.session_state["user"] != None:
-    conn.write_cookies(st.session_state["user"])
+    print("Launching instance "+str(instance_number))
 
-st.session_state["pages"] = [st.Page(home,title="Accueil",icon="🏠",default=True),
-                             st.Page(ctn_page,title="Conteneurs",icon="📦"),
-                             st.Page(login_page,title="Compte",icon="🔑"),
-                             st.Page(admin_panel,title="Pannel d'administration",icon="🎛️")]
+    run_path = os.path.abspath(os.path.join(os.path.dirname(__file__),"run.py"))
 
-with st.sidebar:
-    with st.container(height=75,border=True):
-        col1,col2 = st.columns([0.2,0.8])
-        img = r"docker-py\img\no_user.png" if st.session_state["user"] == None else r"docker-py\img\user.png"
-        img = r"docker-py\img\admin.png" if st.session_state["user"] != None and st.session_state["user"].has_perm(-1) == True else img
-        col1.image(img,use_container_width=True)
-        col2.write(st.session_state["user"].name if st.session_state["user"] != None else "Non connecté")
-    page = st.navigation(st.session_state["pages"])
+    process = subprocess.call(
+        ["streamlit","run",run_path, "--server.port",str(8501+instance_number),"--server.headless","true"],
+        shell=True
+    )
+    INSTANCES -= 1
 
-page.run()
+class HTTPRequestHandler(SimpleHTTPRequestHandler):
+    """HTTP request handler with additional properties and functions"""
+
+    def translate_path(self, path):
+        # Serve files relative to a specific directory
+        path = SimpleHTTPRequestHandler.translate_path(self, path)
+        relpath = os.path.relpath(path, os.getcwd())
+        fullpath = os.path.join(self.server.base_path, relpath)
+        return fullpath
+
+    def do_GET(self):
+        global INSTANCES
+        """Handle GET requests"""
+        if self.path == "/":  # If user connects to root, serve a default HTML
+            self.path = "/redirect_page.html"  # Redirect to index.html in your folder
+            t = threading.Thread(target=handle_client, args=(INSTANCES,))
+            t.start()
+            INSTANCES += 1
+        elif self.path == "/get_instances":
+            self.send_response(200,f"{INSTANCES}")
+
+        return super().do_GET()  # Then use normal behavior
+
+class HTTPServer(BaseHTTPServer):
+    """The main server"""
+
+    def __init__(self, base_path, server_address, RequestHandlerClass=HTTPRequestHandler):
+        self.base_path = base_path
+        super().__init__(server_address, RequestHandlerClass)
+
+async def main():
+    web_dir = os.path.join(os.path.dirname(__file__), 'http_server')
+    os.chdir(web_dir)  # Important: set current working dir for SimpleHTTPRequestHandler
+    httpd = HTTPServer(web_dir, ("", 8080))
+    print("Serving at http://localhost:8080")
+    httpd.serve_forever()
+
+# Launch the HTTP server
+if __name__ == "__main__":
+    asyncio.run(main())
