@@ -1,4 +1,5 @@
 import streamlit as st
+import os,sys
 
 from scripts.init import init
 init() # Initialisation des variables de session
@@ -44,5 +45,15 @@ with st.sidebar:
         col1.image(img,use_container_width=True)
         col2.write(st.session_state["user"].name if st.session_state["user"] != None else "Non connecté")
     page = st.navigation(st.session_state["pages"])
+
+
+port = os.system("netstat -ano | findstr 850")
+instance_number = sys.argv[0]
+
+st.html(f"""
+    <script>
+    const hostname = window.location.hostname;
+    window.addEventListener('beforeunload', function() {'{navigator.sendBeacon(`http://${hostname}:8080/disconnect?instance={instance_number}`);</script>}'});
+""")
 
 page.run()

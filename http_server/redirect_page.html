@@ -7,9 +7,20 @@
 <body>
   <script>
     const hostname = window.location.hostname;
-    const instances = new Request(`http://${hostname}:8080/get_instances`);
-    console.log(instances.body);
-    //window.location.href = `http://${hostname}:${newPort}`;
+    fetch(`http://${hostname}:8080/get_instances`)
+    .then(response => response.text()) // récupérer la réponse sous forme de texte
+    .then(body => {
+        const instance = parseInt(Array.from(body)[2]);
+        if (!isNaN(instance)) {
+            window.location.href = `http://${hostname}:${8501 + instance}`;
+        } else {
+            console.error("Réponse non valide :", body);
+        }
+    })
+    .catch(error => {
+        console.error("Erreur fetch :", error);
+    });
+
   </script>
 
   <p>If you are not redirected automatically, please check your connection.</p>
