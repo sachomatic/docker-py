@@ -27,11 +27,11 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-#data/
-#docker-py/logger/frontend
+data/
+docker-py/logger/frontend
 docker-py/interface.db
 data/server_pack.zip
-#config.ini
+config.ini
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
