@@ -21,10 +21,11 @@ def set_handler():
     ip = session_state["ip"]
     components.html("""
     <script>
-    console.log("Adding beacon");
-    const hostName = "{}";""".format(ip)+"""
+    const port = {};
+    const hostName = "{}";""".format(session_state["port"],ip)+"""
     const instance_number = location.host.split(":")[1]?.[3] || '1'; // Safe fallback
-    const url = `http://${hostName}:30100/disconnect`;
+    const url = `http://${hostName}:${port}/disconnect`;
+    console.log("Adding beacon to", url);
 
     window.addEventListener("beforeunload", function(e) {
         const data = JSON.stringify({ instance: instance_number });
