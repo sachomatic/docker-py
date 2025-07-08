@@ -1,9 +1,8 @@
 docker
-dotenv
+psutil
+pynput
+python-dotenv
 sql
 streamlit
 streamlit_cookies_manager
 websockets
-psutil
-pynput
-configparser
