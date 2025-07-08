@@ -1,4 +1,3 @@
-import asyncio
 import streamlit as st
 from scripts.login import BASE_USER
 import docker.errors as de
@@ -18,18 +17,22 @@ def info():
     )
 
 
-async def wait_for_docker():
-    while True:
-        # Attente du client docker
-        try:
-            return DockerClient(base_url="npipe:////./pipe/docker_engine")
-        except de.DockerException:
-            pass
+while True:
+    # Attente du client docker
+    try:
+        client = DockerClient(base_url="npipe:////./pipe/docker_engine")
+        break
+    except de.DockerException:
+        # En attendant, on affiche un message d'explication
+        if st.session_state["docker_warning"] is None:
+            col1, col2 = st.columns([0.9, 0.1])
+            st.session_state["docker_warning"] = (
+                col1.info("En attente du client Docker..."),
+                col2.button("?", on_click=info),
+            )
 
-docker_loader = asyncio.create_task(wait_for_docker())
 
-
-def launch_compose(client: DockerClient):
+def launch_compose():
     """
     Lance le docker-compose.yml (et arrête les conteneurs existants)
     """
@@ -58,17 +61,6 @@ def ctn_page():
     Page des conteneurs
     """
 
-    while docker_loader.done() is False:
-        # En attendant, on affiche un message d'explication
-        if st.session_state["docker_warning"] is None:
-            col1, col2 = st.columns([0.9, 0.1])
-            st.session_state["docker_warning"] = (
-                col1.info("En attente du client Docker..."),
-                col2.button("?", on_click=info),
-            )
-
-    client = docker_loader.result()
-
     st.title("Conteneurs")
     # Obtention d'une liste de conteneurs
     # * On force le type-checker à accepter que containers soit du type `list[Container]`
@@ -83,7 +75,7 @@ def ctn_page():
     # Bouton pour lancer le compose
     st.divider()
     but_col, help_col = st.columns([0.2, 0.8])
-    but_col.button("Lancer le compose",on_click=(lambda: launch_compose(client)),key="launch_compose",disabled=False if user.has_perm(1) and user.has_perm(2) else True,)
+    but_col.button("Lancer le compose",on_click=launch_compose,key="launch_compose",disabled=False if user.has_perm(1) and user.has_perm(2) else True,)
     help_col.info("Le docker-compose.yml lance (redémarre si les containers sont déjà lancés) tous les services nécessaires pour le serveur minecraft. C'est la méthode conventionnelle." \
     "Notez cependant que le serveur prends du temps à démarrer, cela peut prendre quelques minutes.",)
     st.divider()
@@ -124,7 +116,7 @@ def ctn_page():
 
 
 @st.dialog(title="Arrêter le conteneur?")
-def stop(container: Container):
+def stop(container):
     """
     Dialogue demandant à l'utilisateur de confirmer l'arrêt
     """
