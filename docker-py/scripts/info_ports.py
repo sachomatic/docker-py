@@ -10,11 +10,11 @@ def ports_info_page():
     
     st.divider()
     
-    st.write(f"Comme vous le savez, ce site s'affiche sur {ip}:30100")
+    st.write(f"Comme vous le savez, ce site s'affiche sur {ip}:{st.session_state['port']}")
 
     st.divider()
 
-    st.write(f"Le serveur minecraft se rejoint par {ip}:25565")
+    st.write(f"Le serveur minecraft se rejoint par {ip}:{st.session_state['mc_port']}")
 
     st.divider()
 

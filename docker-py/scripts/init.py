@@ -34,13 +34,12 @@ def get_ip():
 def init():
     path = os.path.join(os.path.dirname(__file__),"..","..",'config.ini')
 
-    loc = configparser.ConfigParser()
-    loc.read(path)
-    loc = loc["switch"]["USE"]
-
     config = configparser.ConfigParser()
     config.read(path)
-    config = config["streamlit"]
+    switch = config["switch"]["USE"]
+    ports = config["port_set"+str(switch)]
+    streamlit = config["streamlit"]
+
     keys = {
         "pages": None,
         "cookies_manager": None,
@@ -50,8 +49,10 @@ def init():
         "account": None,
         "user": None,
         "ip": context.ip_address if context.ip_address == "localhost" else get_ip(),
-        "docker_path": config["DOCKER_LOCATION"],
-        "vite_port": config["VITE_PORT"+str(loc)],
+        "port": ports["HTTP_ACESS_PORT"],
+        "docker_path": streamlit["DOCKER_LOCATION"],
+        "vite_port": ports["VITE_PORT"],
+        "mc_port": ports["MC_PORT"],
     }
 
     for key, value in keys.items():

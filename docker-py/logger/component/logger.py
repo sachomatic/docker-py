@@ -5,12 +5,31 @@ import asyncio
 import datetime
 import random
 import traceback
+import psutil
 from dateutil import parser
 
 def clean_ansi(log):
     import re
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', log)
+
+def kill_process_tree(pid):
+    try:
+        parent = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+        print(f"Process with PID {pid} does not exist.")
+        return
+
+    for child in parent.children(recursive=True):
+        try:
+            child.kill()
+        except psutil.NoSuchProcess:
+            pass  # déjà mort, pas grave
+
+    try:
+        parent.kill()
+    except psutil.NoSuchProcess:
+        pass  # lui aussi peut déjà être mort
 
 def get_local_ip():
     # Create a temporary socket to connect to an external server
@@ -46,7 +65,7 @@ class ViteServer:
     def stop(self):
         if self.process:
             print("Stopping Vite server")
-            self.process.kill()
+            kill_process_tree(self.process.pid)
             self.process.wait()
         else:
             print("Server not running")

@@ -18,19 +18,18 @@ lock = threading.Lock()
 
 run_dir = os.path.abspath(os.path.dirname(__file__))
 
-loc = configparser.ConfigParser()
-loc.read(run_dir+'\\config.ini')
-loc = loc["switch"]["USE"]
-
 config = configparser.ConfigParser()
 config.read(run_dir+'\\config.ini')
-config = config["HTTP_server"]
 
-MAX_INSTANCES = int(config["MAX_INSTANCES"])
-SERVER_BASE_PORT = int(config["SERVER_BASE_PORT"])
-CLIENT_BASE_PORT = int(config["CLIENT_BASE_PORT"+str(loc)])
-ACCESS_PORT = int(config["ACCESS_PORT"+str(loc)])
-IP = config["IP"] if config["IP"] != "None" else get_ip()
+switch = config["switch"]["USE"]
+server = config["http_server"]
+ports = config["port_set"+str(switch)]
+
+MAX_INSTANCES = int(server["MAX_INSTANCES"])
+SERVER_BASE_PORT = int(ports["HTTP_LOCAL_BASE_PORT"])
+CLIENT_BASE_PORT = int(ports["HTTP_CLIENT_BASE_PORT"])
+ACCESS_PORT = int(ports["HTTP_ACESS_PORT"])
+IP = server["IP"] if server["IP"] != "None" else get_ip()
 INSTANCE_LOCK = threading.Lock()
 
 
