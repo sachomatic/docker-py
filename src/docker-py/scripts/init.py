@@ -6,6 +6,8 @@ import configparser
 
 from streamlit import context
 
+from constants import RUN_PATH
+
 def check_docker():
     # Si docker n'est pas lancé, on le lance # TODO: A retravailler pour une version multi-plateforme
     if os.name == "nt":
@@ -32,13 +34,12 @@ def get_ip():
     return ip
 
 def init():
-    path = os.path.join(os.path.dirname(__file__),"..","..",'config.ini')
+    path = RUN_PATH("..", 'config.ini')
 
     config = configparser.ConfigParser()
     config.read(path)
-    switch = config["switch"]["USE"]
-    ports = config["port_set"+str(switch)]
-    streamlit = config["streamlit"]
+    http_config = config["http"]
+    docker_config = config["docker"]
 
     keys = {
         "pages": None,
@@ -49,10 +50,10 @@ def init():
         "account": None,
         "user": None,
         "ip": context.ip_address if context.ip_address == "localhost" else get_ip(),
-        "port": ports["HTTP_ACESS_PORT"],
-        "docker_path": streamlit["DOCKER_LOCATION"],
-        "vite_port": ports["VITE_PORT"],
-        "mc_port": ports["MC_PORT"],
+        "port": http_config["local_port"],
+        "docker_path": docker_config["DOCKER_LOCATION"],
+        "vite_port": http_config["vite_port"],
+        "mc_port": http_config["minecraft_port"],
     }
 
     for key, value in keys.items():

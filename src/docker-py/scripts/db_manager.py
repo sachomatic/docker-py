@@ -2,6 +2,8 @@ import traceback
 import sqlite3
 from typing import Iterable
 
+from constants import RUN_PATH
+
 
 class Interface:
     def __init__(self, table_name, parameters: list):
@@ -10,7 +12,7 @@ class Interface:
         """
         self.name = table_name
 
-        self.db = sqlite3.connect("docker-py\\interface.db", check_same_thread=False)
+        self.db = sqlite3.connect(RUN_PATH("interface.db"), check_same_thread=False)
         self.cursor = self.db.cursor()
         self.cursor.execute(
             f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(parameters)})"
