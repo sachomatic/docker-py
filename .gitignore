@@ -28,8 +28,8 @@ share/python-wheels/
 *.egg
 MANIFEST
 data/
-docker-py/logger/frontend
-docker-py/interface.db
+src/logger/frontend
+src/interface.db
 data/server_pack.zip
 config.ini
 
