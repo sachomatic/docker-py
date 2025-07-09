@@ -27,8 +27,4 @@ Vous pouvez ensuite gérer les conteneurs et les utilisateurs en utilisant les b
 ## Configuration
 
 Vous pouvez configurer l'application en modifiant les fichiers de configuration (`config.ini` et `docker-compose.yml`).
-Vous pouvez également modifier le code source pour personnaliser l'application à vos besoins.
-
-## License
-
-Docker-Py est sous licence MIT. Mais le repo est en privé donc je m'en fous un peu.
+Vous pouvez également modifier le code source pour personnaliser l'application à vos besoins
