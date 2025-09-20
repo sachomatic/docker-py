@@ -17,8 +17,12 @@ services:
       USE_MODPACK_START_SCRIPT: false
       CUSTOM_FORGE: forge-1.20.1-47.3.0-server.jar.lnk
       GENERIC_PACK: server_pack.zip
+      SERVER_NAME: Create Maxime 1.20.1
+      PLAYER_IDLE_TIMEOUT: 600
+      STOP_SERVER_ANNOUNCE_DELAY: 60
     volumes:
       - ./data:/data
+      
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
