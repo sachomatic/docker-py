@@ -2,20 +2,10 @@ import streamlit as st
 from scripts.login import BASE_USER
 import docker.errors as de
 from docker.models.containers import Container
+from scripts.rcon import commands_dialog
 from docker import DockerClient
 import subprocess
 import re
-
-@st.dialog(title="Que se passe t-il?", width="large")
-def info():
-    """
-    Un dialogue qui explique à l'utilisateur pourquoi la page ne se charge pas immédiatement
-    """
-    st.info("Cette page lance docker au démarrage, cela peut prendre du temps. ")
-    st.error(
-        "Si Docker n'est pas lancé au bout de quelques minutes, il y a peut être un problème. Vous pouvez essayer d'actualiser la page. Si le problème persiste, veuillez contacter l'administrateur."
-    )
-
 
 while True:
     # Attente du client docker
@@ -108,10 +98,9 @@ def ctn_page():
                 st.rerun()
             if b_col_3.button("Arrêter le conteneur",key="stop" + str(container.id), disabled=stop_disabled,help=stop_help,):
                 stop(container)
-            if container.name == "mc_docker-mc-1" and user.has_perm(-1):
-                cmd_col1, cmd_col2 = st.columns([0.8,0.2],vertical_alignment="bottom")
-                cmd = cmd_col1.text_input("Commande",key="mc_cmd")
-                cmd_col2.button("Exécuter",key="mc_exec",on_click=mc_exec,args=(cmd,container.id))
+            if container.name == "mc-docker-mc-1" and user.has_perm(-1):
+                if st.button("Envoyer une commande",key="mc_exec" + str(container.id),):
+                    commands_dialog()
         st.divider()
 
 

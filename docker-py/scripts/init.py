@@ -3,8 +3,19 @@ from time import sleep
 import streamlit as st
 import subprocess
 import configparser
+import threading
 
 from streamlit import context
+
+@st.dialog(title="Que se passe t-il?")
+def info():
+    """
+    Un dialogue qui explique à l'utilisateur pourquoi la page ne se charge pas immédiatement
+    """
+    st.info("Cette page lance docker au démarrage, cela peut prendre du temps. ")
+    st.error(
+        "Si Docker n'est pas lancé au bout de quelques minutes, il y a peut être un problème. Vous pouvez essayer d'actualiser la page. Si le problème persiste, veuillez contacter l'administrateur."
+    )
 
 def check_docker():
     # Si docker n'est pas lancé, on le lance # TODO: A retravailler pour une version multi-plateforme
@@ -17,9 +28,10 @@ def check_docker():
                     break
                 sleep(1)
             if error == True:
-                docker_err_1,docker_err_2 = st.columns([0.9,0.1])
-                docker_err_1.error("Docker n'a pas démarré. Si vous pensez qu'il y a un problème, veuillez contacter l'administrateur.\nVous pouvez essayer d'actualiser la page.")
+                docker_err_1,docker_err_2,docker_err3 = st.columns([0.8,0.1,0.1])
+                docker_err_1.error("En attente de docker...\nVous pouvez essayer d'actualiser la page.")
                 docker_err_2.button("🔁",on_click=st.rerun)
+                docker_err3.button("?",on_click=info)
                 st.stop()
     else:
         print("Unsupported OS")
@@ -36,8 +48,7 @@ def init():
 
     config = configparser.ConfigParser()
     config.read(path)
-    switch = config["switch"]["USE"]
-    ports = config["port_set"+str(switch)]
+    ports = config["ports"]
     streamlit = config["streamlit"]
 
     keys = {

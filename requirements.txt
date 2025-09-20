@@ -6,3 +6,6 @@ sql
 streamlit
 streamlit_cookies_manager
 websockets
+rcon
+pyarrow
+protobuf
